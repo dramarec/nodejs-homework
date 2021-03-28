@@ -2,6 +2,7 @@ const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
 const mongoose = require("mongoose");
+
 require("dotenv").config();
 
 const server = express();
@@ -19,7 +20,7 @@ server.use((_, res) => {
     res.status(404).json({
         status: "error",
         code: 404,
-        message: "Use api on routes: /api/contacts",
+        message: `Use api on routes: ${req.baseUrl} /api/contacts`,
         data: "Not found",
     });
 });
@@ -29,7 +30,7 @@ server.use((err, req, res, next) => {
     res.status(500).json({
         status: "fail",
         code: 500,
-        message: err.message,
+        message: `${err.message.replace(/"/g, "")}`,
         data: "Internal Server Error",
     });
 });
