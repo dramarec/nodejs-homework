@@ -46,6 +46,25 @@ const cennection = mongoose.connect(uirDb, {
     useFindAndModify: false,
 });
 
+mongoose.connection.on("connected", (err) => {
+    console.log(`"Database connection successful"`);
+});
+
+mongoose.connection.on("error", (err) => {
+    console.log(`Database connection error: ${err.message}`);
+});
+
+mongoose.connection.on("disconnected", (err) => {
+    console.log(`Database disconnected`);
+});
+
+process.on("SIGINT", () => {
+    mongoose.connection.close(() => {
+        console.log("Connection for DB disconnected and app terminated");
+        process.exit(1);
+    });
+});
+
 cennection
     .then(() => {
         server.listen(PORT, () => {
