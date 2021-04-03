@@ -1,7 +1,9 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const SALT_FACTOR = 6;
 const { Schema } = mongoose;
 
-const contactSchema = new Schema(
+const userSchema = new Schema(
     {
         name: {
             type: String,
@@ -14,26 +16,6 @@ const contactSchema = new Schema(
             type: String,
             required: [true, "Email is required"],
             unique: true,
-            validate: {
-                validator: function (v) {
-                    const reg = /^\S+@\S+\.\S+/;
-                    return reg.test(String(v).toLowerCase());
-                },
-                message: (props) => `${props.value} is not a valid email!`,
-            },
-        },
-        phone: {
-            type: String,
-            validate: {
-                validator: function (v) {
-                    return /^\(?[0][0-9]{2}\)?[\s-]?[0-9]{3}[\s-]?[0-9]{2}[\s-]?[0-9]{2}$/.test(
-                        v
-                    );
-                },
-                message: (props) => `${props.value}! Please try (044)123-45-67`,
-            },
-            unique: true,
-            required: [true, "User phone number required"],
         },
         password: {
             type: String,
@@ -57,6 +39,26 @@ const contactSchema = new Schema(
     { versionKey: false, timestamps: true }
 );
 
-const Contact = mongoose.model("contact", contactSchema);
+userSchema.path("email").validate(function (value) {
+    const reg = /^\S+@\S+\.\S+/;
+    return reg.test(String(value).toLowerCase());
+});
 
-module.exports = Contact;
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
+    this.password = await bcrypt.hash(
+        this.password,
+        bcrypt.genSaltSync(SALT_FACTOR)
+    );
+    next();
+});
+
+userSchema.methods.validPassword = async function (password) {
+    return await bcrypt.compareSync(password, this.password);
+};
+
+const User = mongoose.model("user", userSchema);
+
+module.exports = User;
