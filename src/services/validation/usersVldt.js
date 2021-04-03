@@ -25,6 +25,19 @@ const schemaUpdateUser = Joi.object({
     subscription: Joi.string().valid("starter", "pro", "business").required(),
 });
 
+const validate = (schema, body, next) => {
+    const { error } = schema.validate(body);
+    if (error) {
+        const [{ message }] = error.details;
+        return next({
+            status: 400,
+            message: `Field: ${message.replace(/"/g, "")}`,
+            data: "BAD_REQUEST",
+        });
+    }
+    next();
+};
+
 module.exports.validateAuth = (req, res, next) => {
     return validate(schemaAuthUser, req.body, next);
 };

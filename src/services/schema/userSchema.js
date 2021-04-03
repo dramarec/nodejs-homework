@@ -1,14 +1,13 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const SALT_FACTOR = 6;
-const { Schema } = mongoose;
+const { Schema, model } = mongoose;
 
 const userSchema = new Schema(
     {
         name: {
             type: String,
             default: "Guest",
-            required: [true, "Name is required"],
             minlength: 2,
             maxlength: 22,
         },
@@ -48,10 +47,8 @@ userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) {
         return next();
     }
-    this.password = await bcrypt.hash(
-        this.password,
-        bcrypt.genSaltSync(SALT_FACTOR)
-    );
+    const salt = await bcrypt.genSalt(SALT_FACTOR);
+    this.password = await bcrypt.hash(this.password, salt, null);
     next();
 });
 
@@ -59,6 +56,6 @@ userSchema.methods.validPassword = async function (password) {
     return await bcrypt.compareSync(password, this.password);
 };
 
-const User = mongoose.model("user", userSchema);
+const User = model("user", userSchema);
 
 module.exports = User;

@@ -15,6 +15,8 @@ server.use(express.json());
 
 const contactsRouter = require("../src/api/contacts");
 server.use("/api/contacts", contactsRouter);
+const usersRouter = require("../src/api/users");
+server.use("/api/users", usersRouter);
 
 server.use((_, res) => {
     res.status(404).json({
