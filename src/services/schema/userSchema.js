@@ -22,7 +22,7 @@ const userSchema = new Schema(
             minlength: 3,
             maxlength: 20,
         },
-        subscriptions: {
+        subscription: {
             type: String,
             required: [true, "Subscription is required"],
             minlength: 3,

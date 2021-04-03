@@ -1,4 +1,9 @@
 const userSrvs = require("../services/userSrvs");
+const { HttpCode } = require("../helpers/constants");
+
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const SECRET_KEY = process.env.JWT_SECRET_KEY;
 
 const registration = async (req, res, next) => {
     try {
@@ -7,18 +12,23 @@ const registration = async (req, res, next) => {
         if (user) {
             return res.status(409).json({
                 status: "error",
-                code: 409,
+                code: HttpCode.CONFLICT,
                 message: "Email is already in use",
                 data: "Conflict",
             });
         }
 
-        const newUser = await userSrvs.createUserServ(req.body);
+        const newUser = await userSrvs.createUserServ({
+            name,
+            email,
+            subscription,
+        });
 
         res.status(201).json({
             status: "success",
-            code: 201,
+            code: HttpCode.CREATED,
             data: {
+                name: newUser.name,
                 user: newUser,
                 message: "Registration successful",
             },
@@ -27,9 +37,38 @@ const registration = async (req, res, next) => {
         next(error);
     }
 };
+
 const login = async (req, res, next) => {
-    const { email, password } = req.body;
     try {
+        const { email, password } = req.body;
+        const user = await userSrvs.findUserByEmail(email);
+
+        if (!user || !(await user.validPassword(password))) {
+            return res.status(401).json({
+                status: "error",
+                code: HttpCode.UNAUTHORIZED,
+                message: "Email or password is wrong",
+                data: null,
+            });
+        }
+        const payload = { id: user.id };
+
+        const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "10h" });
+
+        await userSrvs.updateTokenServ(payload.id, token);
+
+        return res.status(HttpCode.OK).json({
+            status: "success",
+            code: HttpCode.OK,
+            data: {
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    subscription: user.subscription,
+                },
+                token,
+            },
+        });
     } catch (error) {
         next(error);
     }

@@ -14,5 +14,11 @@ const createUserServ = async ({ name, email, password, subscription }) => {
     });
     return result.save();
 };
+const updateTokenServ = async (id, token) => {
+    return await User.updateOne({ _id: id }, { token });
+};
+const loginAuthService = async () => {};
 
-module.exports = { findUserByEmail, createUserServ };
+const logoutAuthService = async () => {};
+
+module.exports = { findUserByEmail, createUserServ, updateTokenServ };
