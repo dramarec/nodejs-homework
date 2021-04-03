@@ -77,10 +77,7 @@ const login = async (req, res, next) => {
 const logout = async (req, res, next) => {
     try {
         const id = req.user.id;
-        console.log("logout -> id", id);
-
         await userSrvs.updateTokenServ(id, null);
-
         return res.status(HttpCode.OK).json({
             status: "No Content",
             code: HttpCode.NO_CONTENT,
@@ -90,6 +87,7 @@ const logout = async (req, res, next) => {
         next(error);
     }
 };
+
 const getCurrentUser = async (req, res, next) => {
     try {
         const user = req.user;
@@ -104,11 +102,30 @@ const getCurrentUser = async (req, res, next) => {
                 },
             },
         });
-    } catch (err) {
-        next(err);
+    } catch (error) {
+        next(error);
     }
 };
-const updateUser = async (req, res, next) => {};
+
+const updateUser = async (req, res, next) => {
+    try {
+        const id = req.user.id;
+        const user = await userSrvs.updateUserServ(id, req.body);
+        return res.status(HttpCode.OK).json({
+            status: "success",
+            code: HttpCode.OK,
+            data: {
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    subscription: user.subscription,
+                },
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
 
 module.exports = {
     registration,

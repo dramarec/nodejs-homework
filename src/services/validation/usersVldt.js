@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { HttpCode } = require("../../helpers/constants");
 
 const schemaAuthUser = Joi.object({
     name: Joi.string().min(2).max(30).optional(),
@@ -30,7 +31,7 @@ const validate = (schema, body, next) => {
     if (error) {
         const [{ message }] = error.details;
         return next({
-            status: 400,
+            status: HttpCode.BAD_REQUEST,
             message: `Field: ${message.replace(/"/g, "")}`,
             data: "BAD_REQUEST",
         });
@@ -38,10 +39,10 @@ const validate = (schema, body, next) => {
     next();
 };
 
-module.exports.validateAuth = (req, res, next) => {
+module.exports.authVldt = (req, res, next) => {
     return validate(schemaAuthUser, req.body, next);
 };
 
-module.exports.validateUpdateUser = (req, res, next) => {
+module.exports.updateUserVldt = (req, res, next) => {
     return validate(schemaUpdateUser, req.body, next);
 };

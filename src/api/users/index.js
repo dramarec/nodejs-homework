@@ -1,14 +1,18 @@
 const express = require("express");
 const router = express.Router();
 const usersCntrl = require("../../controllers/usersCntrl");
-// const { validateAuth } = require("../../services/validation/usersVldt");
+const {
+    authVldt,
+    updateUserVldt,
+} = require("../../services/validation/usersVldt");
+
 const guard = require("../../helpers/guard");
 
 router
-    .post("/signup", usersCntrl.registration)
-    .post("/login", usersCntrl.login)
+    .post("/signup", authVldt, usersCntrl.registration)
+    .post("/login", authVldt, usersCntrl.login)
     .post("/logout", guard, usersCntrl.logout)
     .get("/current", guard, usersCntrl.getCurrentUser)
-    .patch("/update", guard, usersCntrl.updateUser);
+    .patch("/update", guard, updateUserVldt, usersCntrl.updateUser);
 
 module.exports = router;
