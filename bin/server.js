@@ -13,7 +13,7 @@ server.use(logger(formatsLogger));
 server.use(cors());
 server.use(express.json());
 
-const contactsRouter = require("../src/api");
+const contactsRouter = require("../src/api/contacts");
 server.use("/api/contacts", contactsRouter);
 
 server.use((_, res) => {
