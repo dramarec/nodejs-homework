@@ -5,6 +5,7 @@ const contactSchema = new Schema(
     {
         name: {
             type: String,
+            default: "Guest",
             required: [true, "Name is required"],
             minlength: 2,
             maxlength: 22,
@@ -13,6 +14,13 @@ const contactSchema = new Schema(
             type: String,
             required: [true, "Email is required"],
             unique: true,
+            validate: {
+                validator: function (v) {
+                    const reg = /^\S+@\S+\.\S+/;
+                    return reg.test(String(v).toLowerCase());
+                },
+                message: (props) => `${props.value} is not a valid email!`,
+            },
         },
         phone: {
             type: String,
@@ -27,13 +35,23 @@ const contactSchema = new Schema(
             unique: true,
             required: [true, "User phone number required"],
         },
-        favorite: {
-            type: Boolean,
-            default: false,
+        password: {
+            type: String,
+            required: [true, "Password is required"],
+            minlength: 3,
+            maxlength: 20,
         },
-        owner: {
-            type: mongoose.SchemaTypes.ObjectId,
-            ref: "user",
+        subscriptions: {
+            type: String,
+            required: [true, "Subscription is required"],
+            minlength: 3,
+            maxlength: 8,
+            enum: ["starter", "pro", "business"],
+            default: "starter",
+        },
+        token: {
+            type: String,
+            default: null,
         },
     },
     { versionKey: false, timestamps: true }
