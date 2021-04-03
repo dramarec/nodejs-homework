@@ -73,8 +73,41 @@ const login = async (req, res, next) => {
         next(error);
     }
 };
-const logout = async (req, res, next) => {};
-const getCurrentUser = async (req, res, next) => {};
+
+const logout = async (req, res, next) => {
+    try {
+        const id = req.user.id;
+        console.log("logout -> id", id);
+
+        await userSrvs.updateTokenServ(id, null);
+
+        return res.status(HttpCode.OK).json({
+            status: "No Content",
+            code: HttpCode.NO_CONTENT,
+            message: "Logout",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+const getCurrentUser = async (req, res, next) => {
+    try {
+        const user = req.user;
+        return res.status(HttpCode.OK).json({
+            status: "success",
+            code: HttpCode.OK,
+            data: {
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    subscription: user.subscription,
+                },
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+};
 const updateUser = async (req, res, next) => {};
 
 module.exports = {

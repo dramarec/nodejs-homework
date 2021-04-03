@@ -17,8 +17,5 @@ const createUserServ = async ({ name, email, password, subscription }) => {
 const updateTokenServ = async (id, token) => {
     return await User.updateOne({ _id: id }, { token });
 };
-const loginAuthService = async () => {};
-
-const logoutAuthService = async () => {};
 
 module.exports = { findUserByEmail, createUserServ, updateTokenServ };
