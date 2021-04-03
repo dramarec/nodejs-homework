@@ -31,9 +31,23 @@ const contactSchema = new Schema(
             type: Boolean,
             default: false,
         },
-        owner: {
-            type: mongoose.SchemaTypes.ObjectId,
-            ref: "user",
+        subscriptions: {
+            type: String,
+            required: [true, "Subscription is required"],
+            minlength: 3,
+            maxlength: 8,
+            enum: ["free", "pro", "premium"],
+            default: "free",
+        },
+        password: {
+            type: String,
+            required: [true, "Password is required"],
+            minlength: 6,
+            maxlength: 20,
+        },
+        token: {
+            type: String,
+            default: "",
         },
     },
     { versionKey: false, timestamps: true }
