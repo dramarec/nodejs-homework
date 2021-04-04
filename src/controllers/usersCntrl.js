@@ -13,24 +13,22 @@ const registration = async (req, res, next) => {
             return res.status(409).json({
                 status: "error",
                 code: HttpCode.CONFLICT,
-                message: "Email is already in use",
+                message: "Email in use",
                 data: "Conflict",
             });
         }
 
-        const newUser = await userSrvs.createUserServ({
-            name,
-            email,
-            subscription,
-        });
+        const newUser = await userSrvs.createUserServ(req.body);
 
         res.status(201).json({
             status: "success",
             code: HttpCode.CREATED,
             data: {
-                name: newUser.name,
-                user: newUser,
-                message: "Registration successful",
+                user: {
+                    email: newUser.email,
+                    subscription: newUser.subscription,
+                    message: "Registration successful",
+                },
             },
         });
     } catch (error) {
@@ -61,12 +59,11 @@ const login = async (req, res, next) => {
             status: "success",
             code: HttpCode.OK,
             data: {
+                token,
                 user: {
-                    name: user.name,
                     email: user.email,
                     subscription: user.subscription,
                 },
-                token,
             },
         });
     } catch (error) {
@@ -96,7 +93,6 @@ const getCurrentUser = async (req, res, next) => {
             code: HttpCode.OK,
             data: {
                 user: {
-                    name: user.name,
                     email: user.email,
                     subscription: user.subscription,
                 },

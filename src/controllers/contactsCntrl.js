@@ -1,14 +1,14 @@
 const service = require("../services/contactsSrvs");
 
 const getAll = async (req, res, next) => {
-    const { query = {} } = req;
     try {
-        const results = await service.getAllContacts(query);
+        const userId = req.user.id;
+        const results = await service.getAllContacts(userId, req.query);
         res.json({
             message: "All contacts",
             status: "SUCCES",
             code: 200,
-            data: { contacts: results },
+            data: { ...results },
         });
     } catch (err) {
         console.error("err :", err);
@@ -17,8 +17,8 @@ const getAll = async (req, res, next) => {
 };
 
 const getById = async (req, res, next) => {
-    const { contactId } = req.params;
     try {
+        const { contactId } = req.params;
         const result = await service.getContactById(contactId);
         if (result) {
             res.json({
@@ -56,8 +56,8 @@ const create = async (req, res, next) => {
 };
 
 const update = async (req, res, next) => {
-    const { contactId } = req.params;
     try {
+        const { contactId } = req.params;
         const result = await service.updateContact(contactId, req.body);
         if (result) {
             res.json({
@@ -81,8 +81,8 @@ const update = async (req, res, next) => {
 };
 
 const remove = async (req, res, next) => {
-    const { contactId } = req.params;
     try {
+        const { contactId } = req.params;
         const result = await service.removeContact(contactId);
         if (result) {
             res.json({

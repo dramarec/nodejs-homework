@@ -23,6 +23,7 @@ const schemaUpdateContact = Joi.object({
     phone: Joi.string().min(7).max(20).optional(),
     favorite: Joi.boolean().optional(),
 });
+
 const schemaStatusContact = Joi.object({
     favorite: Joi.boolean().required().messages({
         "any.required": "missing field favorite",
