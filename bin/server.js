@@ -5,15 +5,19 @@ const path = require("path");
 const dotenv = require("dotenv");
 dotenv.config();
 
-const UPLOAD_Folder = path.join(__dirname, "..", "src", process.env.UPLOAD_DIR);
-const IMG_DIR = path.join(__dirname, "..", "src", "public", "avatars");
-
 const PORT = process.env.PORT || 3000;
 
 db.then(() => {
     app.listen(PORT, async () => {
+        const UPLOAD_Folder = path.join(
+            __dirname,
+            "..",
+            "src",
+            process.env.UPLOAD_DIR
+        );
+        const SAVE_IMG = path.join(__dirname, "..", "src", process.env.IMG_DIR);
         await createFolderIfNotExist(UPLOAD_Folder);
-        await createFolderIfNotExist(IMG_DIR);
+        await createFolderIfNotExist(SAVE_IMG);
         console.log(`Server running. Use our API on port: ${PORT}`);
     });
 }).catch((err) =>

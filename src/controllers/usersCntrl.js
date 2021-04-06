@@ -3,7 +3,51 @@ const { HttpCode } = require("../helpers/constants");
 
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const SECRET_KEY = process.env.JWT_SECRET_KEY;
+const { SECRET_KEY, IMG_DIR } = process.env;
+
+const Jimp = require("jimp");
+const path = require("path");
+const fs = require("fs").promises;
+const createFolderIfNotExist = require("../helpers/createDir");
+
+const SAVE_IMG = path.join(__dirname, "..", IMG_DIR);
+
+const avatar = async (req, res, next) => {
+    const { path: tempName, originalname } = req.file;
+    const { id } = req.user;
+    await createFolderIfNotExist(SAVE_IMG);
+    const img = await Jimp.read(tempName);
+    await img
+        .autocrop()
+        .cover(
+            250,
+            250,
+            Jimp.HORIZONTAL_ALIGN_CENTER | Jimp.VERTICAL_ALIGN_MIDDLE
+        )
+        .writeAsync(tempName);
+
+    const newName = path.join(
+        SAVE_IMG,
+        `avatar${id}${path.extname(originalname)}`
+    );
+    try {
+        await fs.rename(tempName, newName);
+        const newAvatar = await userSrvs.updateAvatar(id, newName);
+        return res.status(HttpCode.OK).json({
+            status: "success",
+            code: HttpCode.OK,
+            data: {
+                user: {
+                    email: newAvatar.email,
+                    avatarURL: newAvatar.avatarURL,
+                },
+            },
+        });
+    } catch (error) {
+        await fs.unlink(tempName);
+        next(error);
+    }
+};
 
 const registration = async (req, res, next) => {
     try {
@@ -95,6 +139,7 @@ const getCurrentUser = async (req, res, next) => {
                 user: {
                     email: user.email,
                     subscription: user.subscription,
+                    avatarURL: user.avatarURL,
                 },
             },
         });
@@ -129,4 +174,5 @@ module.exports = {
     logout,
     getCurrentUser,
     updateUser,
+    avatar,
 };
