@@ -26,9 +26,16 @@ const updateUserServ = async (id, body) => {
     );
 };
 
-//for passport use
 const findUserById = async (id) => {
     return await User.findOne({ _id: id });
+};
+
+const updateAvatar = async (id, newName) => {
+    return await User.findByIdAndUpdate(
+        { _id: id },
+        { avatarURL: newName },
+        { new: true }
+    );
 };
 
 module.exports = {
@@ -37,4 +44,5 @@ module.exports = {
     updateTokenServ,
     updateUserServ,
     findUserById,
+    updateAvatar,
 };
