@@ -12,6 +12,29 @@ const createFolderIfNotExist = require("../helpers/createDir");
 
 const SAVE_IMG = path.join(__dirname, "..", IMG_DIR);
 
+const verify = async (req, res, next) => {
+    try {
+        const result = await userSrvs.verifyServ(req.params);
+        if (result) {
+            return res.status(HttpCode.OK).json({
+                status: "success",
+                code: HttpCode.OK,
+                data: {
+                    message: "Verification successful",
+                },
+            });
+        } else {
+            return next({
+                status: HttpCode.BAD_REQUEST,
+                message:
+                    "Your verification token is not valid. Contact with administration",
+            });
+        }
+    } catch (e) {
+        next(e);
+    }
+};
+
 const avatar = async (req, res, next) => {
     const { path: tempName, originalname } = req.file;
     const { id } = req.user;
@@ -85,7 +108,7 @@ const login = async (req, res, next) => {
         const { email, password } = req.body;
         const user = await userSrvs.findUserByEmail(email);
 
-        if (!user || !(await user.validPassword(password))) {
+        if (!user || !(await user.validPassword(password)) || !isVerify) {
             return res.status(401).json({
                 status: "error",
                 code: HttpCode.UNAUTHORIZED,
@@ -169,6 +192,7 @@ const updateUser = async (req, res, next) => {
 };
 
 module.exports = {
+    verify,
     registration,
     login,
     logout,

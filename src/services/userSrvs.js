@@ -1,5 +1,16 @@
 const User = require("./schema/userSchema");
 
+const verifyServ = async ({ token }) => {
+    const user = await Users.findOne({
+        verifyToken: token,
+    });
+    if (user) {
+        await user.updateOne({ verify: true, verifyToken: null }); // this.repo...
+        return true;
+    }
+    return false;
+};
+
 const findUserByEmail = async (email) => {
     return await User.findOne({ email });
 };
@@ -39,6 +50,7 @@ const updateAvatar = async (id, newName) => {
 };
 
 module.exports = {
+    verifyServ,
     findUserByEmail,
     createUserServ,
     updateTokenServ,
