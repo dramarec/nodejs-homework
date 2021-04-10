@@ -11,7 +11,6 @@ const getAll = async (req, res, next) => {
             data: { ...results },
         });
     } catch (err) {
-        console.error("err :", err);
         next(err);
     }
 };
@@ -35,7 +34,6 @@ const getById = async (req, res, next) => {
             });
         }
     } catch (err) {
-        console.error("err :", err);
         next(err);
     }
 };
@@ -50,7 +48,6 @@ const create = async (req, res, next) => {
             data: { contact: result },
         });
     } catch (err) {
-        console.error("err :", err);
         next(err);
     }
 };
@@ -75,7 +72,6 @@ const update = async (req, res, next) => {
             });
         }
     } catch (err) {
-        console.error("err :", err);
         next(err);
     }
 };
@@ -100,7 +96,6 @@ const remove = async (req, res, next) => {
             });
         }
     } catch (err) {
-        console.error("err :", err);
         next(err);
     }
 };
