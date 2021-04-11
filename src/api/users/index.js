@@ -10,6 +10,7 @@ const guard = require("../../helpers/guard");
 const uploadMiddleware = require("../../helpers/uploadMdlWr");
 
 router
+    .get("/verify/:token", usersCntrl.verify)
     .post("/signup", authVldt, usersCntrl.registration)
     .post("/login", authVldt, usersCntrl.login)
     .post("/logout", guard, usersCntrl.logout)

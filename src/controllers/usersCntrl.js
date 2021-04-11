@@ -3,7 +3,7 @@ const { HttpCode } = require("../helpers/constants");
 
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { SECRET_KEY, IMG_DIR } = process.env;
+const { JWT_SECRET_KEY, IMG_DIR } = process.env;
 
 const Jimp = require("jimp");
 const path = require("path");
@@ -11,6 +11,30 @@ const fs = require("fs").promises;
 const createFolderIfNotExist = require("../helpers/createDir");
 
 const SAVE_IMG = path.join(__dirname, "..", IMG_DIR);
+
+const verify = async (req, res, next) => {
+    try {
+        const result = await userSrvs.verifyServ(req.params);
+        console.log("verify ===> result", result);
+        if (result) {
+            return res.status(HttpCode.OK).json({
+                status: "success",
+                code: HttpCode.OK,
+                data: {
+                    message: "Verification successful",
+                },
+            });
+        } else {
+            return next({
+                status: HttpCode.BAD_REQUEST,
+                message:
+                    "Your verification token is not valid. Contact with administration",
+            });
+        }
+    } catch (e) {
+        next(e);
+    }
+};
 
 const avatar = async (req, res, next) => {
     const { path: tempName, originalname } = req.file;
@@ -85,7 +109,9 @@ const login = async (req, res, next) => {
         const { email, password } = req.body;
         const user = await userSrvs.findUserByEmail(email);
 
-        if (!user || !(await user.validPassword(password))) {
+        const isValidPassword = user.validPassword(password);
+
+        if (!user || !isValidPassword || !user.isVerify) {
             return res.status(401).json({
                 status: "error",
                 code: HttpCode.UNAUTHORIZED,
@@ -93,9 +119,9 @@ const login = async (req, res, next) => {
                 data: null,
             });
         }
-        const payload = { id: user.id };
+        const payload = { id: user._id };
 
-        const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "10h" });
+        const token = jwt.sign(payload, JWT_SECRET_KEY, { expiresIn: "10h" });
 
         await userSrvs.updateTokenServ(payload.id, token);
 
@@ -169,6 +195,7 @@ const updateUser = async (req, res, next) => {
 };
 
 module.exports = {
+    verify,
     registration,
     login,
     logout,
